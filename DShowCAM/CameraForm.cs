@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Accord.Video;
 using Accord.Video.DirectShow;
+using Accord.Video.FFMPEG;
+
 
 namespace DShowCAM
 {
@@ -18,10 +20,15 @@ namespace DShowCAM
         private Size initSize;
         private FilterInfo filterInfo;
         private VideoCaptureDevice videoCaptureDevice = null;
-        public CameraForm(FilterInfo filterInfo)
+        private string filename;
+        private VideoFileWriter videoWriter;
+
+
+        public CameraForm(FilterInfo filterInfo, string filename)
         {
             InitializeComponent();
             this.filterInfo = filterInfo;
+            this.filename = filename;
         }
 
         private void CameraForm_Load(object sender, EventArgs e)
@@ -47,6 +54,9 @@ namespace DShowCAM
                 comboBox1.SelectedIndex = 0;
                 StartVideo(videoCapabilities[0]);
             }
+
+            videoWriter = new VideoFileWriter();
+            videoWriter.Open(this.filename, 640, 480, 30, VideoCodec.Default, 4000000);
         }
 
         private string makeCapText(VideoCapabilities[] caps, int idx)
@@ -73,6 +83,7 @@ namespace DShowCAM
         {
             var img = (Bitmap)ev.Frame.Clone();
             pictureBox1.Image = img;
+            videoWriter.WriteVideoFrame((Bitmap)ev.Frame.Clone());
             System.GC.Collect();
         }
 
@@ -80,8 +91,11 @@ namespace DShowCAM
         {
             if (videoCaptureDevice != null)
             {
+                videoCaptureDevice.NewFrame -= NewFrame;
                 videoCaptureDevice.Stop();
+                videoCaptureDevice.WaitForStop();
                 videoCaptureDevice = null;
+                videoWriter.Close();
             }
         }
 

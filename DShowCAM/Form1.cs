@@ -1,6 +1,4 @@
-﻿using Accord.Video;
-using Accord.Video.DirectShow;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Accord.Video;
+using Accord.Video.DirectShow;
 
 namespace DShowCAM
 {
@@ -36,7 +36,7 @@ namespace DShowCAM
                     Console.WriteLine("MonikerString: " + device.MonikerString);
                     Console.WriteLine("------------------------------------");
 
-                    CameraForm cam = new CameraForm(device);
+                    CameraForm cam = new CameraForm(device, "test-" + i + ".avi");
                     cam.Show();
                     cameraForms[i] = cam;
                     i++;
